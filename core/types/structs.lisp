@@ -483,13 +483,20 @@
                  (when instance-divisor
                    (%gl:vertex-attrib-divisor (+ attrib-offset ,i)
                                               instance-divisor))
-                 (%gl:vertex-attrib-pointer
-                  (+ attrib-offset ,i)
-                  ,len
-                  ,(or gl-type cffi-type)
-                  ,normalized
-                  ,stride-sym
-                  (cffi:make-pointer (+ ,offset pointer-offset))))
+                 ,(if (eql cffi-type :float)
+                     `(%gl:vertex-attrib-pointer
+                       (+ attrib-offset ,i)
+                       ,len
+                       ,(or gl-type cffi-type)
+                       ,normalized
+                       ,stride-sym
+                       (cffi:make-pointer (+ ,offset pointer-offset)))
+                     `(%gl:vertex-attrib-ipointer
+                       (+ attrib-offset ,i)
+                       ,len
+                       ,(or gl-type cffi-type)
+                       ,stride-sym
+                       (cffi:make-pointer (+ ,offset pointer-offset)))))
                :do (incf offset (* len (cepl.internals:gl-type-size cffi-type))))))
       (when definitions
         `(progn
